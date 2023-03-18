@@ -16,20 +16,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-mod fence;
-mod engine;
-mod input;
+/*
+ * input.rs 
+ * A single input. Inputs are defined as an enum of an action that can be taken
+*/
 
-use crate::engine::Engine;
-use crate::fence::FenceRC;
-
-use std::sync::mpsc;
-
-fn main() {
-    let render_fence = FenceRC::new();
-
-    let (_send, recv) = mpsc::channel();
-    let mut engine = Engine::new(recv);
-    engine.render_fence = Some(render_fence.clone());
+pub enum Input {
 
 }

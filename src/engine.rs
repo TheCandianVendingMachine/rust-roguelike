@@ -16,20 +16,25 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-mod fence;
-mod engine;
-mod input;
-
-use crate::engine::Engine;
+use crate::input::Input;
 use crate::fence::FenceRC;
-
 use std::sync::mpsc;
 
-fn main() {
-    let render_fence = FenceRC::new();
+/// The way the game is initialised and ran.
+///
+/// The engine will setup a render fence and input queue, and will update the game state
+/// as needed. If initialised with a render fence, it will synchronise the game state
+/// with the renderer as needed
+pub struct Engine {
+    pub render_fence: Option<FenceRC>,
+    input_queue: mpsc::Receiver<Input>
+}
 
-    let (_send, recv) = mpsc::channel();
-    let mut engine = Engine::new(recv);
-    engine.render_fence = Some(render_fence.clone());
-
+impl Engine {
+    pub fn new(input_queue: mpsc::Receiver<Input>) -> Engine {
+        Engine {
+            render_fence: None,
+            input_queue
+        }
+    }
 }
