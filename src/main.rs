@@ -29,7 +29,10 @@ fn main() {
     let render_fence = FenceRC::new();
 
     let (_send, recv) = mpsc::channel();
-    let mut engine = Engine::new(recv);
-    engine.render_fence = Some(render_fence.clone());
+    let mut engine = Engine::new(recv, Some(render_fence.clone()));
+
+    loop {
+        engine.tick();
+    }
 
 }

@@ -26,15 +26,35 @@ use std::sync::mpsc;
 /// as needed. If initialised with a render fence, it will synchronise the game state
 /// with the renderer as needed
 pub struct Engine {
-    pub render_fence: Option<FenceRC>,
-    input_queue: mpsc::Receiver<Input>
+    render_fence: Option<FenceRC>,
+    input_queue: mpsc::Receiver<Input>,
+    running: bool
 }
 
 impl Engine {
-    pub fn new(input_queue: mpsc::Receiver<Input>) -> Engine {
+    pub fn new(input_queue: mpsc::Receiver<Input>, render_fence: Option<FenceRC>) -> Engine {
         Engine {
-            render_fence: None,
-            input_queue
+            render_fence,
+            input_queue,
+            running: true
+        }
+    }
+
+    /// Simulate one tick of the game state
+    pub fn tick(&mut self) {
+        while self.running {
+            loop {
+                let input = match self.input_queue.try_recv() {
+                    Ok(input) => input,
+                    _ => { break }
+                };
+
+                // Handle input
+            }
+
+            if let Some(render_fence) = &self.render_fence {
+                render_fence.0.close().pass();
+            }
         }
     }
 }
