@@ -30,9 +30,6 @@ fn main() {
 
     let (_send, recv) = mpsc::channel();
     let mut engine = Engine::new(recv, Some(render_fence.clone()));
-
-    loop {
-        engine.tick();
-    }
+    engine.run();
 
 }

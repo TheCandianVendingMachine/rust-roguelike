@@ -22,5 +22,5 @@
 */
 
 pub enum Input {
-
+    CloseGame
 }

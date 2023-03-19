@@ -21,10 +21,12 @@ use crate::fence::FenceRC;
 use std::sync::mpsc;
 use std::rc::Rc;
 
+/// Events that the manages the engine itself
 enum EngineEvent {
-    Stop
+    Stop,
 }
 
+/// A wrapper around a mpsc Reciever and Sender so we don't pollute the engine namespace
 struct EngineEventHandler {
     event_queue: mpsc::Receiver<EngineEvent>,
     sender_base: Rc<mpsc::Sender<EngineEvent>>
@@ -83,6 +85,9 @@ impl Engine {
             };
 
             // Handle input
+            match input {
+                Input::CloseGame => self.running = false,
+            }
         }
     }
 
@@ -104,13 +109,13 @@ impl Engine {
         }
     }
 
-    /// Simulate one tick of the game state
-    pub fn tick(&mut self) {
+    /// Start and run the engine until program halts
+    pub fn run(&mut self) {
         while self.running {
             self.handle_input();
             self.update_state();
-            self.sync();
             self.handle_engine_events();
+            self.sync();
         }
     }
 }
