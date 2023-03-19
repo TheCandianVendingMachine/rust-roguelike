@@ -29,7 +29,7 @@ use std::clone::Clone;
 ///
 /// If all references of a Fence wait when it is closed, we will run into a deadlock
 pub struct Fence {
-    open: AtomicBool
+    is_open: AtomicBool
 }
 
 pub struct FenceRC(pub Arc<Fence>);
@@ -48,22 +48,38 @@ impl Clone for FenceRC {
 impl Fence {
     pub fn new() -> Fence {
         Fence {
-            open: AtomicBool::new(true)
+            is_open: AtomicBool::new(true)
         }
     }
 
+    /// Open the fence and let any blocking thread through
     pub fn open(&self) {
-        self.open.store(true, Ordering::Relaxed)
+        self.is_open.store(true, Ordering::Relaxed)
     }
 
-    pub fn close(&self) {
-        self.open.store(false, Ordering::Relaxed);
+    /// Close the fence and block any thread that attemps to pass
+    pub fn close(&self) -> &Self {
+        self.is_open.store(false, Ordering::Relaxed);
+        self
     }
 
-    pub fn wait(&self) {
-        while self.open.load(Ordering::Relaxed) {
+    // Pass through the fence. If fence is closed, we will wait until it is open again.
+    // If it is open, we pass through
+    pub fn pass(&self) {
+        while self.is_open.load(Ordering::Relaxed) {
             hint::spin_loop();
         }
+    }
+
+    // If the fence is closed, we run func_on_closed. Afterward we attempt to pass 
+    // through the fence
+    pub fn pass_or_execute<F>(&self, func_on_closed: F) 
+        where F: FnOnce() 
+        {
+        if self.is_open.load(Ordering::Relaxed) {
+            func_on_closed();
+        }
+        self.pass();
     }
 }
 
