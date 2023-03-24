@@ -15,9 +15,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-use crate::containers::sparse_set::SparseSet;
-use crate::ecs::components::component::Component; 
-use crate::ecs::entity::Entity;
+use crate::engine_temp::containers::sparse_set::SparseSet;
+use crate::engine_temp::ecs::components::component::Component; 
+use crate::engine_temp::ecs::entity::Entity;
 
 pub struct ComponentManager<T> where 
     T: Component {

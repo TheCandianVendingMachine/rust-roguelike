@@ -15,18 +15,3 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-use crate::game::state_machine::StateMachine;
-
-pub trait State {
-    fn on_push(&mut self) {}
-    fn on_pop(&mut self) {}
-
-    fn init(&mut self) {}
-    fn deinit(&mut self) {}
-
-    fn update(&mut self) {}
-    fn update_fixed(&mut self, delta_time: f64) {}
-    fn pre_update(&mut self) {}
-    fn post_update(&mut self) {}
-}
-

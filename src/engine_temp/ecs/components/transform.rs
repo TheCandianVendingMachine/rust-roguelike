@@ -16,20 +16,33 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-mod engine_temp;
-mod renderer;
-mod game;
+use crate::engine_temp::math::vector2::Vector2i;
+use crate::engine_temp::ecs::components::component::Component;
+use uuid::Uuid;
 
-use crate::engine_temp::engine::Engine;
-use crate::engine_temp::fence::FenceRC;
+/// Defines a position in a 2d grid for a given entity
+pub struct TransformComponent {
+    uuid: Uuid,
+    position: Vector2i
+}
 
-use game::game::Game;
+impl TransformComponent {
+    
+}
 
-use std::sync::mpsc;
+impl Component for TransformComponent {
+   fn new() -> TransformComponent {
+        TransformComponent {
+            uuid: Uuid::new_v4(),
+            position: Vector2i{ x: 0, y: 0 }
+        }
+    }
 
-fn main() {
-    let (_send, recv) = mpsc::channel();
-    let mut engine = Engine::new(recv, None);
-    engine.game_handler.state_machine.queue_push(Box::new(Game::new()));
-    engine.run();
+    fn get_uuid(&self) -> Uuid {
+        self.uuid.clone()
+    }
+
+    fn get_name() -> &'static str {
+        "Transform"
+    }
 }

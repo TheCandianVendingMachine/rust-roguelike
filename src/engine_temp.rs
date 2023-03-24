@@ -16,33 +16,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use crate::math::vector2::Vector2i;
-use crate::ecs::components::component::Component;
-use uuid::Uuid;
+pub mod fence;
+pub mod engine;
+pub mod input;
+pub mod ecs;
+pub mod math;
+pub mod containers;
+pub mod game;
 
-/// Defines a position in a 2d grid for a given entity
-pub struct TransformComponent {
-    uuid: Uuid,
-    position: Vector2i
-}
-
-impl TransformComponent {
-    
-}
-
-impl Component for TransformComponent {
-   fn new() -> TransformComponent {
-        TransformComponent {
-            uuid: Uuid::new_v4(),
-            position: Vector2i{ x: 0, y: 0 }
-        }
-    }
-
-    fn get_uuid(&self) -> Uuid {
-        self.uuid.clone()
-    }
-
-    fn get_name() -> &'static str {
-        "Transform"
-    }
-}

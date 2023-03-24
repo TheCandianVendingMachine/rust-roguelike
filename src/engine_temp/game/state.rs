@@ -15,21 +15,18 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+use crate::engine_temp::game::state_machine::StateMachine;
 
-mod engine_temp;
-mod renderer;
-mod game;
+pub trait State {
+    fn on_push(&mut self) {}
+    fn on_pop(&mut self) {}
 
-use crate::engine_temp::engine::Engine;
-use crate::engine_temp::fence::FenceRC;
+    fn init(&mut self) {}
+    fn deinit(&mut self) {}
 
-use game::game::Game;
-
-use std::sync::mpsc;
-
-fn main() {
-    let (_send, recv) = mpsc::channel();
-    let mut engine = Engine::new(recv, None);
-    engine.game_handler.state_machine.queue_push(Box::new(Game::new()));
-    engine.run();
+    fn update(&mut self) {}
+    fn update_fixed(&mut self, delta_time: f64) {}
+    fn pre_update(&mut self) {}
+    fn post_update(&mut self) {}
 }
+

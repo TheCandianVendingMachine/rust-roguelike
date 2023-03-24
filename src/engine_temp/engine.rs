@@ -16,25 +16,25 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use crate::input::Input;
-use crate::fence::FenceRC;
+use crate::engine_temp::input::Input;
+use crate::engine_temp::fence::FenceRC;
 use std::sync::mpsc;
 use std::rc::Rc;
 
-use crate::game::state_machine::StateMachine;
+use crate::engine_temp::game::state_machine::StateMachine;
 use std::time::{ Instant, Duration };
 
-struct GameHandler {
-    state_machine: StateMachine,
+pub struct GameHandler {
+    pub state_machine: StateMachine,
     // Timings to update the game state at a fixed rate
     last_update: Instant,
     accumulator: Duration,
     simulation_rate: Duration, 
-    runtime: Duration
+    pub runtime: Duration
 }
 
 impl GameHandler {
-    pub fn new() -> GameHandler {
+    fn new() -> GameHandler {
         GameHandler {
             state_machine: StateMachine::new(),
             last_update: Instant::now(),
@@ -44,7 +44,7 @@ impl GameHandler {
         }
     }
 
-    pub fn tick(&mut self) {
+    fn tick(&mut self) {
         let now = Instant::now();
         let delta_time = now - self.last_update;
         self.last_update = now;
@@ -106,7 +106,7 @@ pub struct Engine {
     input_queue: mpsc::Receiver<Input>,
     engine_event_handler: EngineEventHandler,
     running: bool,
-    game_handler: GameHandler
+    pub game_handler: GameHandler
 }
 
 impl Engine {

@@ -16,12 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use crate::ecs::entity::Entity;
-use std::collections::HashMap;
-use crate::ecs::component_manager::ComponentManager;
-use crate::ecs::components::{
+use crate::engine_temp::ecs::entity::Entity;
+use crate::engine_temp::ecs::component_manager::ComponentManager;
+use crate::engine_temp::ecs::components::{
     transform::TransformComponent,
 };
+use std::collections::HashMap;
 
 pub struct WorldComponents {
     pub transforms: ComponentManager<TransformComponent>
@@ -71,13 +71,5 @@ impl World {
         S: Into<String> {
         self.entity_prefabs.insert(prefab.into(), on_create);
     }
-}
-
-pub fn process_unfixed_tick(world: &mut World) {
-
-}
-
-pub fn process_fixed_tick(world: &mut World, delta_time: f64) {
-
 }
 

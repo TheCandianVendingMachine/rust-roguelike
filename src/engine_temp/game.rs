@@ -16,20 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-mod engine_temp;
-mod renderer;
-mod game;
+pub mod state_machine;
+pub mod state;
 
-use crate::engine_temp::engine::Engine;
-use crate::engine_temp::fence::FenceRC;
-
-use game::game::Game;
-
-use std::sync::mpsc;
-
-fn main() {
-    let (_send, recv) = mpsc::channel();
-    let mut engine = Engine::new(recv, None);
-    engine.game_handler.state_machine.queue_push(Box::new(Game::new()));
-    engine.run();
-}
