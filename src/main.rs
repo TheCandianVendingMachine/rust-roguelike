@@ -19,6 +19,9 @@
 mod fence;
 mod engine;
 mod input;
+mod ecs;
+mod math;
+mod containers;
 
 use crate::engine::Engine;
 use crate::fence::FenceRC;

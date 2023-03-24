@@ -22,12 +22,12 @@ use std::sync::mpsc;
 use std::rc::Rc;
 
 /// Events that the manages the engine itself
-enum EngineEvent {
+pub enum EngineEvent {
     Stop,
 }
 
 /// A wrapper around a mpsc Reciever and Sender so we don't pollute the engine namespace
-struct EngineEventHandler {
+pub struct EngineEventHandler {
     event_queue: mpsc::Receiver<EngineEvent>,
     sender_base: Rc<mpsc::Sender<EngineEvent>>
 }
@@ -45,7 +45,7 @@ impl EngineEventHandler {
         self.sender_base.clone()
     }
 
-    pub fn pop(&mut self) -> Option<EngineEvent> {
+    fn pop(&mut self) -> Option<EngineEvent> {
         match self.event_queue.try_recv() {
             Ok(event) => Some(event),
             Err(_) => None
