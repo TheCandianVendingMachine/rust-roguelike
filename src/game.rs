@@ -16,22 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-mod fence;
-mod engine;
-mod input;
-mod ecs;
-mod math;
-mod containers;
-mod game;
+pub mod state_machine;
+pub mod state;
 
-use crate::engine::Engine;
-use crate::fence::FenceRC;
-
-use std::sync::mpsc;
-
-fn main() {
-    let (_send, recv) = mpsc::channel();
-    let mut engine = Engine::new(recv, None);
-    engine.run();
-
-}

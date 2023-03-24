@@ -21,6 +21,49 @@ use crate::fence::FenceRC;
 use std::sync::mpsc;
 use std::rc::Rc;
 
+use crate::game::state_machine::StateMachine;
+use std::time::{ Instant, Duration };
+
+struct GameHandler {
+    state_machine: StateMachine,
+    // Timings to update the game state at a fixed rate
+    last_update: Instant,
+    accumulator: Duration,
+    simulation_rate: Duration, 
+    runtime: Duration
+}
+
+impl GameHandler {
+    pub fn new() -> GameHandler {
+        GameHandler {
+            state_machine: StateMachine::new(),
+            last_update: Instant::now(),
+            accumulator: Duration::new(0, 0),
+            simulation_rate: Duration::from_secs_f64(1.0 / 60.0),
+            runtime: Duration::new(0, 0)
+        }
+    }
+
+    pub fn tick(&mut self) {
+        let now = Instant::now();
+        let delta_time = now - self.last_update;
+        self.last_update = now;
+
+        self.accumulator += delta_time;
+        self.runtime += delta_time;
+
+        self.state_machine.pre_update();
+        self.state_machine.update();
+
+        while self.accumulator >= self.simulation_rate {
+            self.accumulator -= self.simulation_rate;
+            self.state_machine.update_fixed(self.simulation_rate.as_secs_f64());
+        }
+
+        self.state_machine.post_update();
+    }
+}
+
 /// Events that the manages the engine itself
 pub enum EngineEvent {
     Stop,
@@ -62,7 +105,8 @@ pub struct Engine {
     render_fence: Option<FenceRC>,
     input_queue: mpsc::Receiver<Input>,
     engine_event_handler: EngineEventHandler,
-    running: bool
+    running: bool,
+    game_handler: GameHandler
 }
 
 impl Engine {
@@ -73,7 +117,8 @@ impl Engine {
             render_fence,
             input_queue,
             engine_event_handler,
-            running: true
+            running: true,
+            game_handler: GameHandler::new()
         }
     }
 
@@ -100,7 +145,7 @@ impl Engine {
     }
 
     fn update_state(&mut self) {
-
+        self.game_handler.tick();
     }
 
     fn sync(&self) {

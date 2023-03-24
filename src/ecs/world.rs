@@ -73,11 +73,11 @@ impl World {
     }
 }
 
-pub fn per_frame_update(world: &mut World) {
-    
+pub fn process_unfixed_tick(world: &mut World) {
+
 }
 
-pub fn fixed_time_update(world: &mut World, delta_time: f64) {
+pub fn process_fixed_tick(world: &mut World, delta_time: f64) {
 
 }
 
