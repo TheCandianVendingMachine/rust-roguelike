@@ -16,14 +16,15 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-pub struct SparseSet {
+pub struct SparseSet<T> {
     sparse: Vec<usize>,
     dense: Vec<usize>,
+    dense_objects: Vec<T>,
     tombstone: usize
 }
 
-impl SparseSet {
-    pub fn new(length: usize) -> SparseSet {
+impl<T> SparseSet<T> {
+    pub fn new(length: usize) -> SparseSet<T> {
         let tombstone = length;
 
         let mut sparse = Vec::new();
@@ -32,29 +33,35 @@ impl SparseSet {
         SparseSet {
             sparse,
             dense: Vec::new(),
+            dense_objects: Vec::new(),
             tombstone
         }
     }
 
-    pub fn push(&mut self, element: usize) {
-        if !self.contains(element) {
+    pub fn push(&mut self, element_id: usize, element: T) {
+        if !self.contains(element_id) {
             let pos = self.dense.len();
-            self.dense.push(element);
-            self.sparse[element] = pos;
+            self.dense.push(element_id);
+            self.dense_objects.push(element);
+            self.sparse[element_id] = pos;
         }
     }
 
-    pub fn remove(&mut self, element: usize) -> usize {
+    pub fn remove(&mut self, element: usize) -> (usize, Option<T>) {
         if !self.contains(element) {
-            return self.tombstone
+            return (self.tombstone, None)
         }
 
         let size = self.dense.len() - 1;
         let last = *self.dense.last().unwrap();
+
         self.dense.swap(size, self.sparse[element]);
+        self.dense_objects.swap(size, self.sparse[element]);
+
         self.sparse.swap(last, element);
         self.sparse[element] = self.tombstone;
-        self.dense.pop().unwrap()
+
+        (self.dense.pop().unwrap(), Some(self.dense_objects.pop().unwrap()))
     }
 
     pub fn contains(&self, element: usize) -> bool{
@@ -65,8 +72,23 @@ impl SparseSet {
 
     pub fn clear(&mut self) {
         self.dense.clear();
+        self.dense_objects.clear();
         self.sparse = self.sparse.iter_mut()
             .map(|_i| -> usize { self.tombstone }).collect();
+    }
+
+    pub fn get(&self, element: usize) -> Option<&T> {
+        if !self.contains(element) {
+            return None
+        }
+        Some(&self.dense_objects[self.sparse[element]])
+    }
+
+    pub fn get_mut(&mut self, element: usize) -> Option<&mut T> {
+        if !self.contains(element) {
+            return None
+        }
+        Some(&mut self.dense_objects[self.sparse[element]])
     }
 }
 
@@ -79,8 +101,9 @@ mod tests {
     fn test_push() {
         let mut set = SparseSet::new(SPARSE_SET_TEST_SIZE);
         for i in 0..SPARSE_SET_TEST_SIZE {
-            set.push(i);
+            set.push(i, 2*i);
             assert_eq!(set.dense[i], i);
+            assert_eq!(set.dense_objects[i], 2*i);
         }
     }
 
@@ -88,22 +111,22 @@ mod tests {
     fn test_remove() {
         let mut set = SparseSet::new(SPARSE_SET_TEST_SIZE);
         for i in 0..SPARSE_SET_TEST_SIZE {
-            set.push(i);
+            set.push(i, i);
         }
 
         for i in (SPARSE_SET_TEST_SIZE/2)..(SPARSE_SET_TEST_SIZE) {
-            assert_eq!(set.remove(i), i);
+            assert_eq!(set.remove(i), (i, Some(i)));
         }
 
         assert_eq!(set.dense.len(), SPARSE_SET_TEST_SIZE/2);
-        assert_eq!(set.remove(SPARSE_SET_TEST_SIZE + 1), set.tombstone);
+        assert_eq!(set.remove(SPARSE_SET_TEST_SIZE + 1), (set.tombstone, None));
     }
 
     #[test]
     fn test_contains() {
         let mut set = SparseSet::new(SPARSE_SET_TEST_SIZE);
         for i in 0..SPARSE_SET_TEST_SIZE/2 {
-            set.push(2 * i);
+            set.push(2 * i, 4 * i);
         }
 
         assert_eq!(set.contains(1), false);
@@ -111,4 +134,23 @@ mod tests {
         assert_eq!(set.contains(SPARSE_SET_TEST_SIZE + 1), false);
     }
 
+    #[test]
+    fn test_get() {
+        let mut set = SparseSet::new(SPARSE_SET_TEST_SIZE);
+        for i in 0..SPARSE_SET_TEST_SIZE {
+            set.push(i, 3 * i);
+        }
+
+        for i in 0..SPARSE_SET_TEST_SIZE {
+            assert_eq!(*set.get(i).unwrap(), 3 * i);
+        }
+
+        for i in 0..SPARSE_SET_TEST_SIZE {
+            *set.get_mut(i).unwrap() *= 2;
+        }
+
+        for i in 0..SPARSE_SET_TEST_SIZE {
+            assert_eq!(*set.get(i).unwrap(), i * 6);
+        }
+    }
 }
