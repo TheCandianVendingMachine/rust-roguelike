@@ -19,11 +19,13 @@
 use crate::engine_temp::math::vector2::Vector2i;
 use crate::engine_temp::ecs::components::component::Component;
 use uuid::Uuid;
+use serde::Serialize;
 
 /// Defines a position in a 2d grid for a given entity
+#[derive(Serialize)]
 pub struct TransformComponent {
     uuid: Uuid,
-    position: Vector2i
+    pub position: Vector2i
 }
 
 impl TransformComponent {
@@ -31,7 +33,8 @@ impl TransformComponent {
 }
 
 impl Component for TransformComponent {
-   fn new() -> TransformComponent {
+    const NAME: &'static str = "Transform";
+    fn new() -> TransformComponent {
         TransformComponent {
             uuid: Uuid::new_v4(),
             position: Vector2i{ x: 0, y: 0 }
@@ -40,9 +43,5 @@ impl Component for TransformComponent {
 
     fn get_uuid(&self) -> Uuid {
         self.uuid.clone()
-    }
-
-    fn get_name() -> &'static str {
-        "Transform"
     }
 }

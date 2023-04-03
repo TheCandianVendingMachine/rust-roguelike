@@ -38,13 +38,14 @@ impl<T> SparseSet<T> {
         }
     }
 
-    pub fn push(&mut self, element_id: usize, element: T) {
+    pub fn push(&mut self, element_id: usize, element: T) -> &mut T {
         if !self.contains(element_id) {
             let pos = self.dense.len();
             self.dense.push(element_id);
             self.dense_objects.push(element);
             self.sparse[element_id] = pos;
         }
+        self.get_mut(element_id).unwrap()
     }
 
     pub fn remove(&mut self, element: usize) -> (usize, Option<T>) {
@@ -89,6 +90,10 @@ impl<T> SparseSet<T> {
             return None
         }
         Some(&mut self.dense_objects[self.sparse[element]])
+    }
+
+    pub fn get_all_elements(&self) -> Vec<usize> {
+        self.sparse.iter().filter(|s| { **s != self.tombstone }).map(|s| { *s }).collect()
     }
 }
 

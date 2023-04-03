@@ -16,7 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 use crate::engine_temp::game::state::State;
-use crate::engine_temp::ecs::world::World;
+use crate::engine_temp::ecs::world::{ World, WorldComponents };
+use crate::engine_temp::ecs::entity::Entity;
 
 pub struct Game {
     world: World
@@ -24,8 +25,13 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Game {
+        let mut world = World::new();
+        world.create_prefab("test", Box::new(|world: &mut WorldComponents, entity: &Entity| {
+            world.transforms.create(entity);
+        }));
+
         Game{
-            world: World::new()
+            world
         }
     }
 }
@@ -33,6 +39,8 @@ impl Game {
 impl State for Game {
     fn on_push(&mut self) {
         println!("push!");
+        self.world.create_entity_from_prefab("test");
+        println!("{:?}", self.world);
     }
 }
 

@@ -22,6 +22,7 @@ use crate::engine_temp::ecs::components::{
     transform::TransformComponent,
 };
 use std::collections::HashMap;
+use std::fmt;
 
 pub struct WorldComponents {
     pub transforms: ComponentManager<TransformComponent>
@@ -70,6 +71,14 @@ impl World {
     pub fn create_prefab<S>(&mut self, prefab: S, on_create: Box<dyn FnMut(&mut WorldComponents, &Entity)>) where 
         S: Into<String> {
         self.entity_prefabs.insert(prefab.into(), on_create);
+    }
+}
+
+impl fmt::Debug for World {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("World")
+            .field("transforms", &self.components.transforms)
+        .finish()
     }
 }
 

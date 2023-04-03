@@ -18,6 +18,8 @@
 use crate::engine_temp::containers::sparse_set::SparseSet;
 use crate::engine_temp::ecs::components::component::Component; 
 use crate::engine_temp::ecs::entity::Entity;
+use serde::Serialize;
+use std::fmt;
 
 pub struct ComponentManager<T> where 
     T: Component {
@@ -32,12 +34,28 @@ impl<T> ComponentManager<T> where
         }
     }
 
-    pub fn create(&mut self, entity: &Entity) {
-        self.entity_component_set.push(entity.index, T::new());
+    pub fn create(&mut self, entity: &Entity) -> &mut T {
+        self.entity_component_set.push(entity.index, T::new())
     }
 
     pub fn remove(&mut self, entity: &Entity) {
         self.entity_component_set.remove(entity.index);
     }
+
+    pub fn get(&self, entity: &Entity) -> Option<&T> {
+        self.entity_component_set.get(entity.index)
+    }
+
+    pub fn get_mut(&mut self, entity: &Entity) -> Option<&mut T> {
+        self.entity_component_set.get_mut(entity.index)
+    }
 }
 
+impl<T> fmt::Debug for ComponentManager<T> where 
+    T: Component {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct(format!("ComponentManager<{}>", T::NAME).as_str())
+            .field("component count", &self.entity_component_set.get_all_elements().len())
+        .finish_non_exhaustive()
+    }
+}

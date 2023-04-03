@@ -16,10 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 use uuid::Uuid;
+use serde::Serialize;
 
-pub trait Component {
+pub trait Component: Serialize {
+    const NAME: &'static str;
     fn new() -> Self;
     fn get_uuid(&self) -> Uuid;
-    fn get_name() -> &'static str;
+    fn get_name() -> &'static str { Self::NAME }
 }
 
