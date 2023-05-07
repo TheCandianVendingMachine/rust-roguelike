@@ -93,7 +93,7 @@ impl<T> SparseSet<T> {
     }
 
     pub fn get_all_elements(&self) -> Vec<usize> {
-        self.sparse.iter().filter(|s| { **s != self.tombstone }).map(|s| { *s }).collect()
+        self.sparse.iter().filter(|s| { **s != self.tombstone }).copied().collect()
     }
 }
 

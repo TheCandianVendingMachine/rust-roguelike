@@ -42,6 +42,6 @@ impl Component for TransformComponent {
     }
 
     fn get_uuid(&self) -> Uuid {
-        self.uuid.clone()
+        self.uuid
     }
 }

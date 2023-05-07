@@ -123,15 +123,9 @@ impl Engine {
     }
 
     fn handle_input(&mut self) {
-        loop {
-            let input = match self.input_queue.try_recv() {
-                Ok(input) => input,
-                _ => { break }
-            };
-
-            // Handle input
+        while let Ok(input) = self.input_queue.try_recv() {
             match input {
-                Input::CloseGame => self.running = false,
+                Input::CloseGame => self.running = false 
             }
         }
     }

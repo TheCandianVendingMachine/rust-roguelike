@@ -36,10 +36,11 @@ impl WorldComponents {
     }
 }
 
+pub type PrefabInit = Box<dyn FnMut(&mut WorldComponents, &Entity)>;
 pub struct World {
     components: WorldComponents,
     entity_count: usize,
-    entity_prefabs: HashMap<String, Box<dyn FnMut(&mut WorldComponents, &Entity)>>
+    entity_prefabs: HashMap<String, PrefabInit>
 }
 
 impl World {
@@ -68,7 +69,7 @@ impl World {
         Some(e)
     }
 
-    pub fn create_prefab<S>(&mut self, prefab: S, on_create: Box<dyn FnMut(&mut WorldComponents, &Entity)>) where 
+    pub fn create_prefab<S>(&mut self, prefab: S, on_create: PrefabInit) where 
         S: Into<String> {
         self.entity_prefabs.insert(prefab.into(), on_create);
     }
