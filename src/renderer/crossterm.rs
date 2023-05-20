@@ -16,5 +16,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-pub mod colours;
-pub mod crossterm;
+mod colour;
+mod render_engine;
+mod device_settings;
+mod command;
+mod command_buffer;
+pub mod api;
