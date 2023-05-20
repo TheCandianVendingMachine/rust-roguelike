@@ -23,11 +23,24 @@ mod game;
 use crate::engine_temp::engine::Engine;
 use crate::engine_temp::fence::FenceRC;
 
+use crate::renderer::crossterm::api;
+
 use game::game::Game;
 
 use std::sync::mpsc;
 
+use simplelog::*;
+
 fn main() {
+    CombinedLogger::init(
+        vec![
+            TermLogger::new(LevelFilter::Debug, Config::default(), TerminalMode::Mixed, ColorChoice::Auto),
+        ]
+    ).unwrap();
+
+    api::benchmark::run();
+    return;
+
     let (_send, recv) = mpsc::channel();
     let mut engine = Engine::new(recv, None);
     engine.game_handler.state_machine.queue_push(Box::new(Game::new()));
