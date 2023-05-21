@@ -20,6 +20,7 @@ mod colour;
 mod command;
 mod command_buffer;
 mod device_settings;
+mod display_engine;
 mod render_engine;
 mod swapchain;
 

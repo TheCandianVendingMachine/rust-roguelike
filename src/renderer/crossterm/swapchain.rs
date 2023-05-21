@@ -15,12 +15,23 @@
     you should have received a copy of the gnu general public license
     along with this program.  if not, see <https://www.gnu.org/licenses/>.
 */
-use std::io::{ BufWriter, Stdout, stdout };
+use std::io::{ Write, BufWriter, Stdout, stdout };
 use std::sync::{ Mutex, Arc, Condvar };
 use crate::renderer::crossterm::command_buffer::CommandBuffer;
 
+pub struct Framebuffer(BufWriter<Stdout>);
+impl Framebuffer {
+    fn new() -> Framebuffer {
+        Framebuffer(BufWriter::new(stdout()))
+    }
+
+    pub fn flush(&mut self) {
+        self.0.flush().unwrap()
+    }
+}
+
 pub struct Swapchain {
-    pub framebuffers: Vec<Arc<Mutex<BufWriter<Stdout>>>>,
+    pub framebuffers: Vec<Arc<Mutex<Framebuffer>>>,
     pub swapped: Arc<Condvar>,
     pub working_framebuffer: Arc<Mutex<usize>>,
 }
@@ -28,7 +39,7 @@ pub struct Swapchain {
 impl Swapchain {
     pub fn new(framebuffer_count: usize) -> Swapchain {
         let mut buffers = Vec::new();
-        buffers.resize_with(framebuffer_count, || Arc::new(Mutex::new(BufWriter::new(stdout()))));
+        buffers.resize_with(framebuffer_count, || Arc::new(Mutex::new(Framebuffer::new())));
         Swapchain {
             framebuffers: buffers,
             working_framebuffer: Arc::new(Mutex::new(0)),
@@ -39,7 +50,7 @@ impl Swapchain {
     pub fn queue_commands(&mut self, commands: &CommandBuffer) {
         let working_framebuffer = self.working_framebuffer.lock().unwrap();
         let mut framebuffer = self.framebuffers[*working_framebuffer].lock().unwrap();
-        commands.execute(&mut *framebuffer);
+        commands.execute(&mut framebuffer.0);
     }
 
     pub fn swap(&mut self) {

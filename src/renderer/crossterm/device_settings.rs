@@ -18,7 +18,8 @@
 use crate::renderer::colours::Colour;
 
 pub struct DeviceSettings {
+    pub swapchain_count: usize,
     pub display_length_x: u16,
     pub display_length_y: u16,
-    pub clear_colour: Colour 
+    pub clear_colour: Colour
 }

@@ -15,33 +15,41 @@
     you should have received a copy of the gnu general public license
     along with this program.  if not, see <https://www.gnu.org/licenses/>.
 */
-use crate::renderer::crossterm::device_settings::DeviceSettings;
-use crate::renderer::crossterm::colour;
+use crate::renderer::crossterm::{
+    colour,
+    device_settings::DeviceSettings,
+    swapchain::Swapchain,
+    display_engine::DisplayEngine
+};
 use crossterm::style::Color;
 
 struct Display {
+    engine: DisplayEngine,
     width: u16,
     height: u16
 }
 
 pub struct RenderEngine {
+    swapchain: Swapchain,
     display: Display,
     clear_colour: Color
 }
 
 impl RenderEngine {
     pub fn new(settings: DeviceSettings) -> RenderEngine {
+        let swapchain = Swapchain::new(settings.swapchain_count);
         RenderEngine {
             display: Display {
+                engine: DisplayEngine::new(swapchain.framebuffers.clone(), swapchain.swapped.clone()),
                 width: settings.display_length_x,
                 height: settings.display_length_y
             },
+            swapchain,
             clear_colour: colour::map_to_limited_colours(&settings.clear_colour)
         }
     }
 
-    /// Buffer a draw at the given coordinates
-    pub fn draw_at(&self, x: u16, y: u16, character: char) {
-        
+    pub fn init(&mut self) {
+        self.display.engine.run();
     }
 }
