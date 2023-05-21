@@ -231,6 +231,7 @@ impl DrawBuffer {
 }
 
 /// A set of commands that will be executed at draw time to create images on the terminal
+#[derive(Clone)]
 pub struct CommandBuffer {
     draw_buffers: Vec<DrawBuffer>
 }

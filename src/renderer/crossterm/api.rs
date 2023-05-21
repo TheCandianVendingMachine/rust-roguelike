@@ -17,10 +17,11 @@
 */
 
 pub mod benchmark {
-    use std::io::BufWriter;
+    use std::io::{ Write, BufWriter };
     use std::os::unix::io::{ FromRawFd, IntoRawFd };
     use std::fs::File;
     use std::thread;
+    use std::sync::{ Arc, RwLock, atomic::AtomicU8 };
     use log::debug;
     use std::time::{Instant, Duration};
     use crate::renderer::colours::Colour;
@@ -28,8 +29,10 @@ pub mod benchmark {
         colour,
         device_settings::DeviceSettings,
         render_engine::RenderEngine,
-        command_buffer::CommandBuffer, command::{ Command, ClearInfo, DrawInfo }
+        command_buffer::CommandBuffer, command::{ Command, ClearInfo, DrawInfo },
+        swapchain::Swapchain
     };
+    use std::sync::atomic::Ordering;
 
     /// Test rendering terminal in multiple colours. Colours will be rendered in different
     /// moments to minimize characters drawn, characters of same colour drawn, etc
@@ -78,31 +81,48 @@ pub mod benchmark {
         accumulator += {
             let t0 = Instant::now();
 
+            let mut swapchain = Swapchain::new(1);
+            let framebuffers = swapchain.framebuffers.clone();
+            let working_framebuffer = swapchain.working_framebuffer.clone();
+            let swapped = swapchain.swapped.clone();
+
+            let render_thread = thread::spawn(move || {
+                loop {
+                    let mut current_fb = working_framebuffer.lock().unwrap();
+                    current_fb = swapped.wait(current_fb).unwrap();
+
+                    let index = *current_fb;
+                    framebuffers[index].lock().unwrap().flush().unwrap();
+                }
+            });
 
             let mut avg = Duration::ZERO;
             let mut iteration = 0;
-            let dt = Duration::from_secs_f64(1.0 / 60.0);
+            let dt = Duration::from_secs_f64(1.0 / 10000.0);
 
             let mut avg_frame_time = Duration::ZERO;
             let mut avg_wait_time = Duration::ZERO;
 
             let mut start_time = Instant::now();
-            while t0.elapsed() < Duration::from_secs(3) {
+            while t0.elapsed() < Duration::from_secs(5) {
                 let elapsed_time = start_time.elapsed();
                 start_time = Instant::now();
                 avg_frame_time += elapsed_time;
-                if elapsed_time <= dt {
-                    thread::sleep(dt - elapsed_time);
-                    avg_wait_time += dt - elapsed_time;
-                }
-
 
                 let t0_avg = Instant::now();
-                // todo: implement swapchain so we can output in different thread
-                command_buffer.execute(&mut writer);
+                swapchain.queue_commands(&command_buffer);
+                swapchain.swap();
+
+                if dt > start_time.elapsed() {
+                    avg_frame_time += dt - start_time.elapsed();
+                    thread::sleep(dt - start_time.elapsed());
+                }
+
                 avg += t0_avg.elapsed();
                 iteration += 1;
             }
+
+            render_thread.join().unwrap();
 
             avg_frame_time = avg_frame_time / iteration;
             avg_wait_time = avg_wait_time / iteration;

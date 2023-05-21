@@ -17,8 +17,10 @@
 */
 
 mod colour;
-mod render_engine;
-mod device_settings;
 mod command;
 mod command_buffer;
+mod device_settings;
+mod render_engine;
+mod swapchain;
+
 pub mod api;
