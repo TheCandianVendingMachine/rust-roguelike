@@ -23,8 +23,6 @@ mod game;
 use crate::engine_temp::engine::Engine;
 use crate::engine_temp::fence::FenceRC;
 
-use crate::renderer::crossterm::api;
-
 use game::game::Game;
 
 use std::sync::mpsc;
@@ -38,8 +36,9 @@ fn main() {
         ]
     ).unwrap();
 
-    api::benchmark::run();
-    return;
+    loop {
+
+    }
 
     let (_send, recv) = mpsc::channel();
     let mut engine = Engine::new(recv, None);

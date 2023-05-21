@@ -23,5 +23,3 @@ mod device_settings;
 mod display_engine;
 mod render_engine;
 mod swapchain;
-
-pub mod api;
