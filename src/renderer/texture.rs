@@ -48,6 +48,7 @@ impl TextureManager {
     }
 
     fn create_handle(&mut self, uuid: Uuid) -> Handle {
+        self.texture_references.write().unwrap().create(uuid);
         Handle {
             uuid,
             manager: self.texture_references.clone()
@@ -59,7 +60,6 @@ impl TextureManager {
             meta: meta_data.clone()
         };
 
-        self.texture_references.write().unwrap().create(meta_data.uuid);
         self.texture_names.insert(meta_data.name, texture.meta.uuid);
         self.all_textures.insert(meta_data.uuid, texture);
 
@@ -115,6 +115,12 @@ impl TextureReferenceHandler {
     }
 
     fn create(&mut self, uuid: Uuid) {
+        if self.textures.contains_key(&uuid) {
+            let current_ref_count = self.textures.get(&uuid).unwrap();
+            self.textures.insert(uuid, current_ref_count + 1);
+        } else {
+            self.textures.insert(uuid, 1);
+        }
     }
 
     fn destroy(&mut self, uuid: Uuid) {
