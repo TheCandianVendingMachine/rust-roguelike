@@ -25,7 +25,7 @@ use std::path::PathBuf;
 pub struct TextureMetaData {
     uuid: Uuid,
     name: &'static str,
-    filepath: PathBuf
+    path: PathBuf
 }
 
 pub struct Texture {
@@ -34,6 +34,7 @@ pub struct Texture {
 
 pub struct TextureManager {
     all_textures: HashMap<Uuid, Texture>,
+    texture_paths: HashMap<PathBuf, Uuid>,
     texture_names: HashMap<&'static str, Uuid>,
     texture_references: Arc<RwLock<TextureReferenceHandler>>,
 }
@@ -42,8 +43,9 @@ impl TextureManager {
     pub fn new() -> TextureManager {
         TextureManager {
             all_textures: HashMap::new(),
+            texture_paths: HashMap::new(),
+            texture_names: HashMap::new(),
             texture_references: Arc::new(RwLock::new(TextureReferenceHandler::new())),
-            texture_names: HashMap::new()
         }
     }
 
@@ -61,14 +63,23 @@ impl TextureManager {
         };
 
         self.texture_names.insert(meta_data.name, texture.meta.uuid);
+        self.texture_paths.insert(meta_data.path.clone(), texture.meta.uuid);
         self.all_textures.insert(meta_data.uuid, texture);
 
         self.create_handle(meta_data.uuid)
     }
 
     fn destroy_texture(&mut self, texture: Uuid) {
-        self.all_textures.remove(&texture);
+        if !self.all_textures.contains_key(&texture) {
+            panic!("Attempting to destroy texture ({}) when it doesn't exist!", texture);
+        }
+        let texture_obj = self.all_textures.get(&texture).unwrap();
+
+
+        self.texture_names.remove(texture_obj.meta.name);
+        self.texture_paths.remove(&texture_obj.meta.path);
         self.texture_references.write().unwrap().destroy(texture);
+        self.all_textures.remove(&texture);
     }
 
     pub fn get_or_create_texture(&mut self, texture: &TextureMetaData) -> Handle {
@@ -76,10 +87,22 @@ impl TextureManager {
     }
 
     pub fn get_texture(&mut self, texture: &TextureMetaData) -> Option<Handle> {
-        if self.all_textures.contains_key(&texture.uuid) {
-            Some(self.create_handle(texture.uuid))
+        self.get_texture_by_uuid(texture.uuid)
+    }
+
+    pub fn get_texture_by_name(&mut self, name: &'static str) -> Option<Handle> {
+        if !self.texture_names.contains_key(name) {
+            panic!("No texture exists with name \"{}\"", name);
+        }
+
+        self.get_texture_by_uuid(*self.texture_names.get(name).unwrap())
+    }
+
+    pub fn get_texture_by_uuid(&mut self, texture: Uuid) -> Option<Handle> {
+        if self.all_textures.contains_key(&texture) {
+            Some(self.create_handle(texture))
         } else {
-            None
+            None 
         }
     }
 
