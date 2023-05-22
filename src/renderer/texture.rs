@@ -22,6 +22,10 @@ use std::collections::HashMap;
 use std::path::{ PathBuf, Path };
 use std::time::{ Instant, Duration };
 
+pub enum TextureRendererData {
+    Crossterm
+}
+
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct TextureMetaData {
     uuid: Uuid,
@@ -30,7 +34,8 @@ pub struct TextureMetaData {
 }
 
 pub struct Texture {
-    meta: TextureMetaData
+    meta: TextureMetaData,
+    pub render_info: TextureRendererData
 }
 
 pub struct TextureManager {
@@ -64,7 +69,8 @@ impl TextureManager {
     /// by TextureMetaData
     fn create_texture(&mut self, meta_data: &TextureMetaData) -> Handle {
         let texture = Texture{
-            meta: meta_data.clone()
+            meta: meta_data.clone(),
+            render_info: TextureRendererData::Crossterm
         };
 
         self.texture_names.insert(meta_data.name, texture.meta.uuid);
@@ -125,6 +131,10 @@ impl TextureManager {
         } else {
             None 
         }
+    }
+
+    pub fn get_texture_object_by_handle(&self, handle: Handle) -> Option<&Texture> {
+        self.all_textures.get(&handle.uuid)
     }
 
     /// Upkeeps internal state.
