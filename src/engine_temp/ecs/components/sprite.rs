@@ -15,8 +15,35 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+use crate::engine_temp::math::vector2::Vector2i;
+use crate::engine_temp::ecs::components::component::Component;
+use crate::renderer::texture::Handle;
+use uuid::Uuid;
+use serde::Serialize;
 
-pub mod colours;
-pub mod crossterm;
-pub mod game_renderer;
-pub mod texture;
+/// Defines a component which allows this sprite to be rendered
+#[derive(Serialize)]
+pub struct SpriteComponent {
+    uuid: Uuid,
+    pub position: Vector2i,
+    pub texture: Option<Handle>
+}
+
+impl SpriteComponent {
+    
+}
+
+impl Component for SpriteComponent {
+    const NAME: &'static str = "Sprite";
+    fn new() -> SpriteComponent {
+        SpriteComponent {
+            uuid: Uuid::new_v4(),
+            position: Vector2i{ x: 0, y: 0 },
+            texture: None
+        }
+    }
+
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
+    }
+}

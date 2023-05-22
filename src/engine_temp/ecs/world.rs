@@ -20,18 +20,21 @@ use crate::engine_temp::ecs::entity::Entity;
 use crate::engine_temp::ecs::component_manager::ComponentManager;
 use crate::engine_temp::ecs::components::{
     transform::TransformComponent,
+    sprite::SpriteComponent
 };
 use std::collections::HashMap;
 use std::fmt;
 
 pub struct WorldComponents {
-    pub transforms: ComponentManager<TransformComponent>
+    pub transforms: ComponentManager<TransformComponent>,
+    pub sprites: ComponentManager<SpriteComponent>
 }
 
 impl WorldComponents {
     pub fn new() -> WorldComponents {
         WorldComponents {
-            transforms: ComponentManager::new(128)
+            transforms: ComponentManager::new(1024),
+            sprites: ComponentManager::new(1024)
         }
     }
 }
@@ -76,9 +79,10 @@ impl World {
 }
 
 impl fmt::Debug for World {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("World")
             .field("transforms", &self.components.transforms)
+            .field("sprites", &self.components.sprites)
         .finish()
     }
 }
