@@ -19,4 +19,5 @@
 pub mod colours;
 pub mod crossterm;
 pub mod game_renderer;
+pub mod render_system;
 pub mod texture;
