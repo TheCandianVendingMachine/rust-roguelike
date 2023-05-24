@@ -40,9 +40,9 @@ impl BitSet {
         }
     }
 
-    const fn get_index(index: usize, byte_count: usize) -> (usize, usize) {
-        let inner_bit_index = index / byte_count;
-        let sub_index = index - inner_bit_index * BitSet::INNER_BIT_LEN;
+    const fn get_index(bit_index: usize, byte_count: usize) -> (usize, usize) {
+        let inner_bit_index = bit_index / (byte_count * BitSet::INNER_BIT_LEN);
+        let sub_index = bit_index - inner_bit_index * BitSet::INNER_BIT_LEN;
 
         (inner_bit_index, sub_index)
     }
@@ -70,6 +70,25 @@ impl BitSet {
             panic!("Attempting to set bit at index outside of range of bitset!")
         }
         self.bits[inner_bit_index] &= !(1 << sub_index);
+    }
+
+    // Act as if we are AND-ing with a bitset of equal length where the only value set 
+    // is at bit_index
+    pub fn phantom_and(&mut self, bit_index: usize) {
+        let (inner_bit_index, sub_index) = BitSet::get_index(bit_index, self.bits.len());
+        if inner_bit_index >= self.bits.len() {
+            panic!("Attempting to set bit at index outside of range of bitset!")
+        }
+        self.bits[inner_bit_index] &= 1 << sub_index;
+    }
+
+    /// Return all bit indices that are set
+    pub fn get_set_indices(&self) -> Vec<usize> {
+        let mut indices = Vec::new();
+        for (idx, byte) in self.bits.iter().enumerate() {
+
+        }
+        indices
     }
 }
 
