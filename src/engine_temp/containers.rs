@@ -16,5 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+pub mod bit_set;
 pub mod sparse_set;
 

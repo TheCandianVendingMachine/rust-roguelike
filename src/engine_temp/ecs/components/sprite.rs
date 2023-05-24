@@ -15,7 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-use crate::engine_temp::math::vector2::Vector2i;
 use crate::engine_temp::ecs::components::component::Component;
 use crate::renderer::texture::Handle;
 use uuid::Uuid;
@@ -25,7 +24,6 @@ use serde::Serialize;
 #[derive(Serialize)]
 pub struct SpriteComponent {
     uuid: Uuid,
-    pub position: Vector2i,
     pub texture: Option<Handle>
 }
 
@@ -38,7 +36,6 @@ impl Component for SpriteComponent {
     fn new() -> SpriteComponent {
         SpriteComponent {
             uuid: Uuid::new_v4(),
-            position: Vector2i{ x: 0, y: 0 },
             texture: None
         }
     }

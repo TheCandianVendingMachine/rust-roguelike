@@ -17,7 +17,9 @@
 */
 
 pub struct SparseSet<T> {
+    // Index of element in sparse set represents the object. Value is the pointer
     sparse: Vec<usize>,
+    // Index of element in dense set represents the T, value is the object
     dense: Vec<usize>,
     dense_objects: Vec<T>,
     tombstone: usize

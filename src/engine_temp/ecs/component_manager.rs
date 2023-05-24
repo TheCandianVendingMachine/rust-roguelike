@@ -49,6 +49,10 @@ impl<T> ComponentManager<T> where
     pub fn get_mut(&mut self, entity: &Entity) -> Option<&mut T> {
         self.entity_component_set.get_mut(entity.index)
     }
+
+    pub fn entities_with_components(&self) -> Vec<usize> {
+        self.entity_component_set.get_all_elements()
+    }
 }
 
 impl<T> fmt::Debug for ComponentManager<T> where 

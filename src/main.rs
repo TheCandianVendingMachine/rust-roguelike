@@ -36,10 +36,6 @@ fn main() {
         ]
     ).unwrap();
 
-    loop {
-
-    }
-
     let (_send, recv) = mpsc::channel();
     let mut engine = Engine::new(recv, None);
     engine.game_handler.state_machine.queue_push(Box::new(Game::new()));

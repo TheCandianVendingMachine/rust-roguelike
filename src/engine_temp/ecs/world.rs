@@ -41,8 +41,8 @@ impl WorldComponents {
 
 pub type PrefabInit = Box<dyn FnMut(&mut WorldComponents, &Entity)>;
 pub struct World {
-    components: WorldComponents,
-    entity_count: usize,
+    pub components: WorldComponents,
+    pub entity_count: usize,
     entity_prefabs: HashMap<String, PrefabInit>
 }
 
